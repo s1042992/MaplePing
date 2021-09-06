@@ -1,24 +1,8 @@
 import os
-import time 
 from tcp_latency import measure_latency
 import numpy as np
 
-print("******************")
-print("伺服器         編號")
-print()
-print("艾麗亞:   	 0")
-print("普力特:   	 1")
-print("琉德:     	 2")
-print("優依娜:   	 3")
-print("愛麗西亞: 	 4")
-print("殺人鯨:   	 6")
-print("Reboot:		45")
-print()
-print("******************")
-print("上面是每個伺服器對應的編號，請輸入編號來查看本機與伺服器之間延遲狀況:")
-print("(Here is the list of world, please enter a world number)")
-w = {0, 1, 2, 3, 4, 6, 45}
-
+channel_rtt = np.array(range(40), np.float)
 def get_ip(ch):
 	if ch > 30:
 		ip = "202.80.104." + str(((ch - 30) // 2) + 154) # only happens in world 0 
@@ -27,12 +11,33 @@ def get_ip(ch):
 	return ip
 	
 def get_port(ch):
-	if i % 2 == 0:
+	if ch % 2 == 0:
 		return 8585
 	else:
 		return 8686
-		
+def ping_job(channel):
+	result = measure_latency(host = get_ip(channel), port = get_port(channel))
+	if result is None:
+		result = 999999	
+	channel_rtt[channel] = round(result[0],3)
+	print("CH.", channel + 1,"= ", channel_rtt[channel], "ms")
+	
 if __name__ == '__main__':
+	print("******************")
+	print("伺服器         編號")
+	print()
+	print("艾麗亞:   	 0")
+	print("普力特:   	 1")
+	print("琉德:     	 2")
+	print("優依娜:   	 3")
+	print("愛麗西亞: 	 4")
+	print("殺人鯨:   	 6")
+	print("Reboot:		45")
+	print()
+	print("******************")
+	print("上面是每個伺服器對應的編號，請輸入編號來查看本機與伺服器之間延遲狀況:")
+	print("(Here is the list of world, please enter a world number)")
+	w = {0, 1, 2, 3, 4, 6, 45}
 	while True:
 		world = input()
 		try:
@@ -60,30 +65,20 @@ if __name__ == '__main__':
 		mall_ip = "202.80.104." + str(40 + world)
 		auction_ip = "202.80.104." + str(40 + world)
 		
-	channel_rtt = np.array(range(40), np.float)	
-	thread = []
 	if world == 0: #World 0 has 40 channels
 		try:
 			for i in range(40):
-				result = measure_latency(get_ip(i), get_port(i))
-				if result is None:
-					result = 999999	
-				channel_rtt[i] = round(result[0],3)
-				print("CH.", i + 1,"= ", channel_rtt[i], "ms")
-
+				ping_job(i)
+				
 		except:
 			pass
 	else:
 		try:
 			for i in range(30):
-				result = measure_latency(get_ip(i), get_port(i))
-				if result is None:
-					result = 999999	
-				channel_rtt[i] = round(result[0],3)
-				print("CH.", i + 1,"= ", channel_rtt[i], "ms")
+				ping_job(i)
 		except:
 			pass
-
+		
 	print("副本: ", round(measure_latency(dungeon_ip, 8686)[0],3), "ms")
 	print("商城: ", round(measure_latency(mall_ip, 8686)[0],3), "ms")
 
