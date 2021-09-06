@@ -18,24 +18,13 @@ print("******************")
 print("上面是每個伺服器對應的編號，請輸入編號來查看本機與伺服器之間延遲狀況:")
 print("(Here is the list of world, please enter a world number)")
 w = {0, 1, 2, 3, 4, 6, 45}
-channel_rtt = np.array(range(40), np.float)
 
-def ping(ch): #ping task
-	if ch % 2 == 0:
-		ch_port = 8585
-	else:
-		ch_port = 8686
-		
+def get_ip(ch):
 	if ch > 30:
 		ip = "202.80.104." + str(((ch - 30) // 2) + 154) # only happens in world 0 
 	else:
 		ip = "202.80.104." + str((ch // 2) + init)
-	time.time() 
-	result = measure_latency(host = ip, port = ch_port)
-	if result is None:
-		result = 999999
-	print("CH.", ch+1,"= ", round(result[0],3), "ms")
-	channel_rtt[ch] = round(result[0],3)
+	return ip
 
 if __name__ == '__main__':
 	while True:
@@ -65,25 +54,43 @@ if __name__ == '__main__':
 		mall_ip = "202.80.104." + str(40 + world)
 		auction_ip = "202.80.104." + str(40 + world)
 		
+	channel_rtt = np.array(range(40), np.float)	
 	thread = []
 	if world == 0: #World 0 has 40 channels
 		try:
 			for i in range(40):
-				ping(i)				
+				if i % 2 == 0:
+					ch_port = 8585
+				else:
+					ch_port = 8686
+				result = measure_latency(get_ip(i), ch_port)
+				if result is None:
+					result = 999999	
+				print("CH.", i+1,"= ", round(result[0],3), "ms")
+				channel_rtt[i] = round(result[0],3)
+
 		except:
 			pass
 	else:
 		try:
 			for i in range(30):
-				ping(i)
+				if i % 2 == 0:
+					ch_port = 8585
+				else:
+					ch_port = 8686
+				result = measure_latency(get_ip(i), ch_port)
+				if result is None:
+					result = 999999	
+				print("CH.", i+1,"= ", round(result[0],3), "ms")
+				channel_rtt[i] = round(result[0],3)
 		except:
 			pass
 
-	print("副本: ", round(measure_latency(host = dungeon_ip, port = 8686)[0],3), "ms")
-	print("商城: ", round(measure_latency(host = mall_ip, port = 8686)[0],3), "ms")
+	print("副本: ", round(measure_latency(dungeon_ip, 8686)[0],3), "ms")
+	print("商城: ", round(measure_latency(mall_ip, 8686)[0],3), "ms")
 
 	if world != 45: #World Reboot has no Auction system
-		print("拍賣: ", round(measure_latency(host = auction_ip, port = 8787)[0],3), "ms")
+		print("拍賣: ", round(measure_latency(auction_ip, 8787)[0],3), "ms")
 
 	channel_rtt = channel_rtt.tolist()
 	if world != 0:	 
