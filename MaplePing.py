@@ -25,7 +25,13 @@ def get_ip(ch):
 	else:
 		ip = "202.80.104." + str((ch // 2) + init)
 	return ip
-
+	
+def get_port(ch):
+	if i % 2 == 0:
+		return 8585
+	else:
+		return 8686
+		
 if __name__ == '__main__':
 	while True:
 		world = input()
@@ -59,11 +65,7 @@ if __name__ == '__main__':
 	if world == 0: #World 0 has 40 channels
 		try:
 			for i in range(40):
-				if i % 2 == 0:
-					ch_port = 8585
-				else:
-					ch_port = 8686
-				result = measure_latency(get_ip(i), ch_port)
+				result = measure_latency(get_ip(i), get_port(i))
 				if result is None:
 					result = 999999	
 				print("CH.", i+1,"= ", round(result[0],3), "ms")
@@ -74,11 +76,7 @@ if __name__ == '__main__':
 	else:
 		try:
 			for i in range(30):
-				if i % 2 == 0:
-					ch_port = 8585
-				else:
-					ch_port = 8686
-				result = measure_latency(get_ip(i), ch_port)
+				result = measure_latency(get_ip(i), get_port(i))
 				if result is None:
 					result = 999999	
 				print("CH.", i+1,"= ", round(result[0],3), "ms")
