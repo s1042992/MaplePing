@@ -68,8 +68,8 @@ if __name__ == '__main__':
 				result = measure_latency(get_ip(i), get_port(i))
 				if result is None:
 					result = 999999	
-				print("CH.", i+1,"= ", round(result[0],3), "ms")
 				channel_rtt[i] = round(result[0],3)
+				print("CH.", i + 1,"= ", channel_rtt[i], "ms")
 
 		except:
 			pass
@@ -79,8 +79,8 @@ if __name__ == '__main__':
 				result = measure_latency(get_ip(i), get_port(i))
 				if result is None:
 					result = 999999	
-				print("CH.", i+1,"= ", round(result[0],3), "ms")
 				channel_rtt[i] = round(result[0],3)
+				print("CH.", i + 1,"= ", channel_rtt[i], "ms")
 		except:
 			pass
 
