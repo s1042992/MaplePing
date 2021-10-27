@@ -3,6 +3,7 @@ from tcp_latency import measure_latency
 import numpy as np
 
 channel_rtt = np.array(range(40), np.float)
+withoutfb_cnt = 0
 def get_ip(ch):
 	if ch > 30:
 		ip = "202.80.104." + str(((ch - 30) // 2) + 154) # only happens in world 0 
@@ -16,11 +17,16 @@ def get_port(ch):
 	else:
 		return 8686
 def ping_job(channel):
-	result = measure_latency(host = get_ip(channel), port = get_port(channel))
-	if result is None:
-		result = 999999	
+	result = measure_latency(host = get_ip(channel), port = get_port(channel), timeout=2.5)
+	#print(result[0])
+	if result[0] is None:
+		result[0] = 999999
+		global withoutfb_cnt
+		withoutfb_cnt = withoutfb_cnt + 1
+		
 	channel_rtt[channel] = round(result[0],3)
 	print("CH.", channel + 1,"= ", channel_rtt[channel], "ms")
+
 	
 if __name__ == '__main__':
 	print("******************")
@@ -35,6 +41,7 @@ if __name__ == '__main__':
 	print("Reboot:		45")
 	print()
 	print("******************")
+	print("上面是每個伺服器對應的編號，請輸入編號來查看本機與伺服器之間延遲狀況:")
 	
 	w = {0, 1, 2, 3, 4, 6, 45}
 	while True:
@@ -42,6 +49,7 @@ if __name__ == '__main__':
 		print("上面是每個伺服器對應的編號，請輸入編號來查看本機與伺服器之間延遲狀況:")
 		print("(Please enter a world number based on the list above.)")
 		channel_rtt = np.array(range(40), np.float)
+		withoutfb_cnt = 0
 		while True:
 			world = input()
 			try:
@@ -82,8 +90,26 @@ if __name__ == '__main__':
 					ping_job(i)
 			except:
 				pass
-			
 		
+		result_dungeon = measure_latency(dungeon_ip, 8686)[0]
+		result_mall = measure_latency(mall_ip, 8686)[0]
+		
+		if result_dungeon is None:
+			print("副本: 9999999.0 ms")
+		else:
+			print("副本: ", round(result_dungeon, 3), "ms")
+			
+		if result_mall is None:
+			print("商城: 9999999.0 ms")
+		else:	
+			print("商城: ", round(result_mall, 3), "ms")
+
+		if world != 45: #World Reboot has no Auction system
+			result_auction = measure_latency(auction_ip, 8686)[0]
+			if result_auction is None:
+				print("拍賣: 9999999.0 ms")
+			else:
+				print("拍賣: ", round(measure_latency(auction_ip, 8787)[0],3), "ms")
 
 		channel_rtt = channel_rtt.tolist()
 		if world != 0:	 
@@ -93,15 +119,12 @@ if __name__ == '__main__':
 			max_value = max(channel_rtt)
 			min_value = min(channel_rtt)
 
-		print()
-		print("Maximum delay CH.", channel_rtt.index(max_value)+1, ",RTT = ", max_value, "ms")
-		print("Minimal delay CH.", channel_rtt.index(min_value)+1, ",RTT = ", min_value, "ms")
-		print("建議去 CH.",channel_rtt.index(min_value)+1)
-		print()
-		print("副本: ", round(measure_latency(dungeon_ip, 8686)[0],3), "ms")
-		print("商城: ", round(measure_latency(mall_ip, 8686)[0],3), "ms")
-
-		if world != 45: #World Reboot has no Auction system
-			print("拍賣: ", round(measure_latency(auction_ip, 8787)[0],3), "ms")
-			
+		if withoutfb_cnt > 15:
+			print("伺服器可能在維修中或是掛了")
+		else:
+			print()
+			print("Maximum delay CH.", channel_rtt.index(max_value)+1, ",RTT = ", max_value, "ms")
+			print("Minimal delay CH.", channel_rtt.index(min_value)+1, ",RTT = ", min_value, "ms")
+			print("建議去 CH.",channel_rtt.index(min_value)+1)
+			print()
 	os.system("pause")
