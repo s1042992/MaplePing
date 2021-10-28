@@ -3,6 +3,7 @@ from tcp_latency import measure_latency
 import numpy as np
 
 channel_rtt = np.array(range(40), np.float)
+#count the ip which has no feedback
 withoutfb_cnt = 0
 def get_ip(ch):
 	if ch > 30:
