@@ -124,8 +124,8 @@ if __name__ == '__main__':
 			print("伺服器可能在維修中或是掛了")
 		else:
 			print()
-			print("Maximum delay CH.", channel_rtt.index(max_value)+1, ",RTT = ", max_value, "ms")
-			print("Minimal delay CH.", channel_rtt.index(min_value)+1, ",RTT = ", min_value, "ms")
+			print("最大延遲頻道：", channel_rtt.index(max_value)+1, ",RTT = ", max_value, "ms")
+			print("最小延遲頻道：", channel_rtt.index(min_value)+1, ",RTT = ", min_value, "ms")
 			print("建議去 CH.",channel_rtt.index(min_value)+1)
 			print()
 	os.system("pause")
