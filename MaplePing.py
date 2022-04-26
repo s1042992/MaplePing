@@ -26,7 +26,7 @@ def ping_job(channel):
 		withoutfb_cnt = withoutfb_cnt + 1
 		
 	channel_rtt[channel] = round(result[0],3)
-	print("CH.", channel + 1,"= ", channel_rtt[channel], "ms")
+	#print("CH.", channel + 1,"= ", channel_rtt[channel], "ms")
 
 	
 if __name__ == '__main__':
@@ -82,15 +82,35 @@ if __name__ == '__main__':
 			try:
 				for i in range(40):
 					ping_job(i)
-					
+				for i in range(40):
+					print("CH.", i + 1,"= ", channel_rtt[i], "ms")	
 			except:
 				pass
 		else:
 			try:
 				for i in range(30):
 					ping_job(i)
+				for i in range(30):
+					print("CH.", i + 1,"= ", channel_rtt[i], "ms")
 			except:
 				pass
+		
+		channel_rtt = channel_rtt.tolist()
+		if world != 0:	 
+			max_value = max(channel_rtt[0:30])
+			min_value = min(channel_rtt[0:30])
+		else:
+			max_value = max(channel_rtt)
+			min_value = min(channel_rtt)
+
+		if withoutfb_cnt > 15:
+			print("伺服器可能在維修中或是掛了")
+		else:
+			print()
+			print("最大延遲頻道：", channel_rtt.index(max_value)+1, ",RTT = ", max_value, "ms")
+			print("最小延遲頻道：", channel_rtt.index(min_value)+1, ",RTT = ", min_value, "ms")
+			print("建議去 CH.",channel_rtt.index(min_value)+1)
+			print()
 		
 		result_dungeon = measure_latency(dungeon_ip, 8686)[0]
 		result_mall = measure_latency(mall_ip, 8686)[0]
@@ -112,20 +132,5 @@ if __name__ == '__main__':
 			else:
 				print("拍賣: ", round(measure_latency(auction_ip, 8787)[0],3), "ms")
 
-		channel_rtt = channel_rtt.tolist()
-		if world != 0:	 
-			max_value = max(channel_rtt[0:30])
-			min_value = min(channel_rtt[0:30])
-		else:
-			max_value = max(channel_rtt)
-			min_value = min(channel_rtt)
-
-		if withoutfb_cnt > 15:
-			print("伺服器可能在維修中或是掛了")
-		else:
-			print()
-			print("最大延遲頻道：", channel_rtt.index(max_value)+1, ",RTT = ", max_value, "ms")
-			print("最小延遲頻道：", channel_rtt.index(min_value)+1, ",RTT = ", min_value, "ms")
-			print("建議去 CH.",channel_rtt.index(min_value)+1)
-			print()
+		
 	os.system("pause")
